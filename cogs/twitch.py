@@ -14,7 +14,7 @@ twitch_data = {
 
 # not really a secret but it's convenient to have it here OK
 with open("secrets/channel_id.txt") as channel_id_file:
-    twitch_data["channel_id"] = channel_id_file.read()
+    twitch_data["channel_id"] = int(channel_id_file.read())
 
 with open("secrets/client_id.txt") as client_id_file:
     twitch_data["client_id"] = client_id_file.read()
@@ -30,22 +30,20 @@ def refresh_twitch_api():
     })
     twitch_data["twitch_api_key"] = api_req.json()["access_token"]
     print(f"Twitch API key refreshed: {twitch_data["twitch_api_key"]}")
-        
-def get_users(user_names: list):
-    req = requests.get("https://api.twitch.tv/helix/users", params={"login": user_names}, headers={"Authorization": f"Bearer {twitch_data["twitch_api_key"]}", "Client-Id": twitch_data["client_id"]})
+
+def twitch_api_call(endpoint: str, params: dict) -> dict:
+    req = requests.get(f"https://api.twitch.tv/helix/{endpoint}", params=params, headers={"Authorization": f"Bearer {twitch_data["twitch_api_key"]}", "Client-Id": twitch_data["client_id"]})
     if req.status_code == 401:
         refresh_twitch_api()
-        get_users(user_names)
+        return twitch_api_call(endpoint, params)
     
     return req.json()["data"]
+        
+def get_users(user_names: list):
+    return twitch_api_call("users", {"login": user_names})
 
 def get_streams(channel_names: list):
-    req = requests.get("https://api.twitch.tv/helix/streams", params={"user_login": channel_names}, headers={"Authorization": f"Bearer {twitch_data["twitch_api_key"]}", "Client-Id": twitch_data["client_id"]})
-    if req.status_code == 401:
-        refresh_twitch_api()
-        get_streams(channel_names)
-
-    return req.json()["data"]
+    return twitch_api_call("streams", {"user_login": channel_names})
 
 def create_live_embed(stream_data: dict, user_data: dict):
     username = stream_data["user_name"]
@@ -95,7 +93,7 @@ class Twitch(commands.Cog, name="twitch"):
             open("currently_live.txt", "w").close()
         with open("currently_live.txt", "r") as currently_live:
             twitch_data["currently_live"] = [channel.strip() for channel in currently_live.readlines()]
-            
+
         self.do_update.start()
 
 async def setup(client):
