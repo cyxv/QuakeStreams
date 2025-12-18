@@ -1,6 +1,8 @@
 import discord
-import requests
+import math
 import os
+import requests
+import time
 from datetime import datetime, timezone
 from discord.ext import commands, tasks
 
@@ -52,7 +54,7 @@ def create_live_embed(stream_data: dict, user_data: dict):
         url=f"https://twitch.tv/{username}"
     )
     embed.set_author(name=f"{username} is now live on Twitch!", url=f"https://twitch.tv/{username}", icon_url=user_data["profile_image_url"])
-    embed.set_image(url=stream_data["thumbnail_url"].format(width=1920, height=1080))
+    embed.set_image(url=f"{stream_data["thumbnail_url"].format(width=1920, height=1080)}?t={math.floor(time.time())}")
     embed.add_field(name="Game", value=stream_data["game_name"])
     embed.set_footer(text=str(datetime.now(timezone.utc)).split(".")[0])
 
