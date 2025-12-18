@@ -85,7 +85,7 @@ class Twitch(commands.Cog, name="twitch"):
                 twitch_data["currently_live"].append(channel["user_login"])
         
         with open("currently_live.txt", "w") as currently_live:
-            currently_live.writelines(twitch_data["currently_live"])
+            currently_live.writelines([line + "\n" for line in twitch_data["currently_live"]])
 
     @commands.Cog.listener()
     async def on_ready(self):
