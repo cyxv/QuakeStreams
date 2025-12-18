@@ -20,7 +20,7 @@ client = commands.Bot(
 async def on_ready():
     print(f"QuakeStreams successfully loaded & connected in {round(time.time() - startTime, 4)} seconds.")
 
-extensions = ["cogs.twitch"]
+extensions = ["cogs.twitch", "cogs.youtube"]
 async def load_extensions():
     for extension in extensions:
         try:

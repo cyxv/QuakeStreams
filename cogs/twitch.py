@@ -15,13 +15,13 @@ twitch_data = {
 }
 
 # not really a secret but it's convenient to have it here OK
-with open("secrets/channel_id.txt") as channel_id_file:
+with open("secrets/discord_channel_id.txt") as channel_id_file:
     twitch_data["channel_id"] = int(channel_id_file.read())
 
-with open("secrets/client_id.txt") as client_id_file:
+with open("secrets/twitch_client_id.txt") as client_id_file:
     twitch_data["client_id"] = client_id_file.read()
 
-with open("secrets/client_secret.txt") as client_secret_file:
+with open("secrets/twitch_client_secret.txt") as client_secret_file:
     twitch_data["client_secret"] = client_secret_file.read()
 
 def refresh_twitch_api():
@@ -80,7 +80,11 @@ class Twitch(commands.Cog, name="twitch"):
         for channel in streams:
             if channel["user_login"] not in twitch_data["currently_live"]:
                 current_user_data = [x for x in users if x["login"] == channel["user_login"]][0]
-                await self.client.get_channel(twitch_data["channel_id"]).send(embed=create_live_embed(channel, current_user_data))
+
+                view = discord.ui.View()
+                url_button = discord.ui.Button(style=discord.ButtonStyle.url, label="Watch Stream", url=f"https://twitch.tv/{channel["user_login"]}")
+                view.add_item(url_button)
+                await self.client.get_channel(twitch_data["channel_id"]).send(f"{channel["user_name"]} is now live on Twitch!", embed=create_live_embed(channel, current_user_data), view=view)
 
                 twitch_data["currently_live"].append(channel["user_login"])
         
