@@ -15,7 +15,7 @@ twitch_data = {
 }
 
 # not really a secret but it's convenient to have it here OK
-with open("secrets/discord_channel_id.txt") as channel_id_file:
+with open("secrets/channel_id_twitch.txt") as channel_id_file:
     twitch_data["channel_id"] = int(channel_id_file.read())
 
 with open("secrets/twitch_client_id.txt") as client_id_file:
