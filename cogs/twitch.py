@@ -35,7 +35,7 @@ def refresh_twitch_api():
 
 def twitch_api_call(endpoint: str, params: dict) -> dict:
     req = requests.get(f"https://api.twitch.tv/helix/{endpoint}", params=params, headers={"Authorization": f"Bearer {twitch_data["twitch_api_key"]}", "Client-Id": twitch_data["client_id"]})
-    if req.status_code == 401:
+    if req.status_code != 200:
         refresh_twitch_api()
         return twitch_api_call(endpoint, params)
     
